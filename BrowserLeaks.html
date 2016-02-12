@@ -115,6 +115,52 @@
                 return ua;
             }
             
+            // Using indexedDB
+            function checkIndexedDB(){
+                var bIndexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+                return bIndexedDB;
+            }
+            
+            // CPU Class
+            function checkCPUClass(){
+                var szCPU = '';
+                if(navigator.cpuClass){
+                    szCPU = navigator.cpuClass;
+                }else{
+                    szCPU = "unknown";
+                }
+            }
+            
+            // User's date/time
+            function checkDateTime(){
+                var today = new Date();
+                return today;
+            }
+            
+            // Referrer
+            function checkReferrer(){
+                var referrer = document.referrer;
+                return referrer;
+            }
+            
+            // Actual Screen Resolution
+            function checkScreenActual(){
+                var szScreen = window.screen;
+                var width = szScreen.width;
+                var height = szScreen.height;
+                var colorDepth = szScreen.colorDepth;
+                return 'Screen : ' + width + ' x ' + height + ' ' + colorDepth + ' bit colour depth';
+            }
+            
+            // Usable Screen Resolution
+            function checkScreenUsable(){
+                var szScreen = window.screen;
+                var availWidth = szScreen.availWidth;
+                var availHeight = szScreen.availHeight;
+                var colorDepth = szScreen.colorDepth;
+                return 'Screen (usable) : ' + availWidth + ' x ' + availHeight + ' ' + colorDepth + ' bit colour depth';
+            }
+            
             function checks(){
                 var unknown = '-';
                 // screen
@@ -214,6 +260,7 @@
                     {s:'Windows 7', r:/(Windows 7|Windows NT 6.1)/},
                     {s:'Windows 8.1', r:/(Windows 8.1|Windows NT 6.3)/},
                     {s:'Windows 8', r:/(Windows 8|Windows NT 6.2)/},
+                    {s:'Windows 10', r:/(Windows 10|Windows NT 10.0)/},
                     {s:'Windows NT 4.0', r:/(Windows NT 4.0|WinNT4.0|WinNT|Windows NT)/},
                     {s:'Windows ME', r:/Windows ME/},
                     {s:'Android', r:/Android/},
@@ -268,8 +315,25 @@
                         flashVersion = unknown;
                     }
                 }
+                // Using Storage
+                var localStore = window.localStorage;
+                var sessionStore = window.sessionStorage;
+                var globalStore = window.globalStorage;
                 
-                return [os, osVersion,browser,version,mobile,cookieEnabled,screenSize, flashVersion];
+                return [os, osVersion, browser, version, mobile, cookieEnabled, flashVersion, localStore, sessionStore, globalStore];
+            }
+            
+            // Check AdBlock
+            function checkAdBlock(){
+                var ads = document.createElement("div");
+                ads.setAttribute("id", "ads");
+                try {
+                    // body may not exist, that's why we need try/catch
+                    document.body.appendChild(ads);
+                    return document.getElementById("ads") ? false : true;
+                } catch (e) {
+                    return false;
+                }
             }
 
             // Insert IP addresses into the page
@@ -287,13 +351,13 @@
             });
             
             Information = checks();
-            document.write("Your OS is : <b>" + Information[0] + " " + Information[1] + "</b></br>");
-            document.write("Your UserAgent is : <b>" + checkUA() + "</b></br>");
-            document.write("Your browser is : <b>" + Information[2] + " " + Information[3] + "</b></br>");
-            
-            document.write("Cookie is enabled : <b>" + Information[5] + "</b></br>");           
-            document.write("Your current screen size is : <b>" + Information[6] + "</b></br>");   
-            document.write("Your Flash version is : <b>" + Information[7] + "</b></br>");
+            document.write('Your OS is : <b>' + Information[0] + ' ' + Information[1] + '</b></br>');
+            document.write('Your UserAgent is : <b>' + checkUA() + '</b></br>');
+            document.write('Your browser is : <b>' + Information[2] + ' ' + Information[3] + '</b></br>');
+            document.write('Cookie is enabled : <b>' + Information[5] + '</b></br>');
+            document.write('Your actual screen size is : <b>' + checkScreenActual() + '</b></br>');
+            document.write('Your usable screen size is : <b>' + checkScreenUsable() + '</b></br>');
+            document.write('Your Flash version is : <b>' + Information[6] + '</b></br>');
             if( checkDNT()==true ){
                 document.write("<b>Do Not Track (DNT)</b> is enabled!</br>");
             }else{
@@ -304,18 +368,27 @@
             }else{
                 document.write("You are most probably <b>using</b> a mobile device</b></br>");
             }
+            document.write('Local Storage : <b>' + !!Information[7] + '</b></br>');
+            document.write('Session Storage : <b>'+ !!Information[8] + '</b></br>');
+            document.write('Glocal Storage : <b>' + !!Information[9] + '</b></br>');
+            document.write('IndexedDB : <b>' + !!checkIndexedDB() + '</b></br>');
+            document.write('CPU Class : <b>' + checkCPUClass() + '</b></br>');
+            document.write('Date : <b>' + checkDateTime() + '</b></br>');
+            document.write('Referrer : <b>' + checkReferrer() + '</b></br>');
+            document.write('AdBlock enabled : <b>' + checkAdBlock() + '</b></br>');
             
             document.write("<h4>The following are the plugins that your browser used.</h4>");
             for (i = 0; i < navigator.plugins.length; i++) {
                 document.writeln("Name: <b>" + navigator.plugins[i].name + "</b><BR>" + "Filename: " + navigator.plugins[i].filename + "<BR>" + "Description: " + navigator.plugins[i].description + "<BR>");
                 /*
                 Enable the following code if we want information about mimetype.
+                
                 for (j = 0; j < navigator.plugins[i].length; j++) {
                     var mimetype = navigator.plugins[i][j];
                     document.writeln("MIME type " + (j + 1) + ": " + mimetype.type + ": " + mimetype.description + "<BR>");
                 }
-                */
                 document.writeln("<BR>");
+                */
             }
         </script>
     </body>
